@@ -1,0 +1,312 @@
+\documentclass[a4paper,oneside,12pt,final]{extreport}
+
+% ============================================================
+% CONFIGURATION GLOBALE (XeLaTeX)
+% ============================================================
+\usepackage{fontspec}
+\usepackage{polyglossia}
+\setmainlanguage{french}
+\setotherlanguage{english}
+
+% ============================================================
+% PACKAGES DEMANDÉS + STABILITÉ DES FLOTTANTS
+% ============================================================
+\usepackage{graphicx}
+\usepackage{float}            % autorise [H]
+\usepackage[section]{placeins}% ajoute \FloatBarrier à chaque section
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{makecell}
+\usepackage{amsmath,amsthm}
+\usepackage[hidelinks]{hyperref}
+\usepackage{chngcntr}
+\usepackage{geometry}
+\geometry{a4paper,margin=2.5cm}
+
+% ============================================================
+% NUMÉROTATION COHÉRENTE
+% Figure 1.1, Figure 1.2 ; Table 1.1, Table 1.2, etc.
+% ============================================================
+\counterwithin{figure}{chapter}
+\counterwithin{table}{chapter}
+\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+\renewcommand{\thetable}{\thechapter.\arabic{table}}
+
+% ============================================================
+% ENVIRONNEMENTS
+% ============================================================
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{exemple}{Example}[chapter]
+
+% ============================================================
+% AIDE COMPILATION: si une image manque, on affiche un cadre
+% (évite l'échec de compilation dans les environnements incomplets)
+% ============================================================
+\newcommand{\safeincludegraphics}[2][]{%
+  \IfFileExists{#2}{\includegraphics[#1]{#2}}{%
+    \fbox{\begin{minipage}[c][4cm][c]{0.8\linewidth}\centering
+      Image manquante:\\ \texttt{#2}
+    \end{minipage}}%
+  }%
+}
+
+\begin{document}
+
+% ------------------------------------------------------------
+% Front matter automatique (au lieu des listes écrites à la main)
+% ------------------------------------------------------------
+\pagenumbering{roman}
+
+
+% ------------------------------------------------------------
+% Pages préliminaires (version proche de ton rapport original)
+% ------------------------------------------------------------
+\begin{titlepage}
+\centering
+{\Large Projet de fin d'études}\[0.8cm]
+{\bfseries\LARGE Amélioration de la gestion de maintenance de RIVA via digitalisation}\[1.2cm]
+{\large Réalisé par : Ezzerki Mohamed Taha}\[0.3cm]
+{\large Soutenance : 13/06/2026}\[1cm]
+\vfill
+{\large RIVA Industries}\
+\end{titlepage}
+\clearpage
+
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+Je tiens à remercier l'ensemble des encadrants académiques et industriels pour leur accompagnement.
+\clearpage
+
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+Ce travail porte sur l'amélioration de la fiabilité de la machine de compactage chez RIVA Industries,
+avec identification des causes d'arrêt, analyse de criticité et propositions d'amélioration.
+\clearpage
+
+\begin{otherlanguage}{english}
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+This report focuses on improving compacting-machine reliability at RIVA Industries,
+including downtime analysis, criticality assessment and maintenance improvements.
+\end{otherlanguage}
+\clearpage
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\listoftables
+\clearpage
+
+\pagenumbering{arabic}
+
+% ============================================================
+% Chapitre 1
+% ============================================================
+\chapter{Présentation générale de l'organisme d'accueil et cadrage du projet}
+
+\section{Présentation de RIVA Industries}
+
+\begin{table}[H]
+\centering
+\caption{Chiffres clés du groupe Meski Holding}
+\label{tab:meski-cles}
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Effectif moyen} & 2000 \\
+\hline
+\textbf{CA consolidé} & 4,3 Milliards de MAD \\
+\hline
+\textbf{Capital} & 500\,000\,000 MAD \\
+\hline
+\textbf{Nombre de pôles d'activité} & 4 \\
+\hline
+\textbf{Superficie de réserve foncière} & 140 Ha \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Fiche signalétique de RIVA Industries}
+\label{tab:fiche-riva}
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Secteur d'activité} & Sidérurgie \\
+\hline
+\textbf{Statut juridique} & SARL (Société à Responsabilité Limitée) \\
+\hline
+\textbf{Produits / Services} & Profilés et barres : Ronds à béton \\
+\hline
+\textbf{Maison mère ou associés} & Meski Holding (Maroc) \\
+\hline
+\textbf{Localisation} & Jorf Lasfar (zone de MEDZ) EL JADIDA \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.9\textwidth]{media/organigramme.jpeg}
+\caption{Organigramme RIVA Industries}
+\label{fig:organigramme}
+\end{figure}
+
+La Figure~\ref{fig:organigramme} présente l'organigramme général.
+La Table~\ref{tab:meski-cles} et la Table~\ref{tab:fiche-riva} résument les données clés.
+
+\begin{table}[H]
+\centering
+\caption{Diamètre des barres de ronds à béton (RIVA1)}
+\label{tab:riva1}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|}
+\hline
+\textbf{Diamètre (mm)} & 8 & 10 & 12 & 14 & 16 & 25 & 32 & 40 \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.45\textwidth]{media/image8.jpeg}
+\caption{Barre à béton (produit RIVA 1)}
+\label{fig:barre}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.45\textwidth]{media/image9.jpeg}
+\caption{Couronne rond à béton (RIVA 2)}
+\label{fig:couronne}
+\end{figure}
+
+\FloatBarrier
+
+\section{Procédure de production des couronnes}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=\textwidth]{media/schema_zones.jpeg}
+\caption{Schéma significatif des zones de production chez RIVA 2}
+\label{fig:schema-zones}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.65\textwidth]{media/image12.jpeg}
+\caption{Matière première -- billette}
+\label{fig:billette}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=\textwidth]{media/four_longerons.jpeg}
+\caption{Four à longerons mobiles}
+\label{fig:four-longerons}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=\textwidth]{media/processus_production.png}
+\caption{Processus de production}
+\label{fig:processus-production}
+\end{figure}
+
+Voir la Figure~\ref{fig:schema-zones} pour les zones de production et la Figure~\ref{fig:processus-production} pour le flux global.
+
+\FloatBarrier
+
+% ============================================================
+% Chapitre 2
+% ============================================================
+\chapter{Amélioration du système de maintenance}
+
+\section{Les types de la maintenance}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=\textwidth]{media/types_maintenance.png}
+\caption{Les types de la maintenance}
+\label{fig:types-maintenance}
+\end{figure}
+
+\section{Maintenance basée sur la fiabilité}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=\textwidth]{media/maintenance_fiabilite.png}
+\caption{Maintenance basée sur la fiabilité}
+\label{fig:mbf}
+\end{figure}
+
+\section{Fonctionnement de la machine}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=0.6\textwidth]{media/image41.jpeg}
+\caption{La compacteuse}
+\label{fig:compacteuse}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=\textwidth]{media/image42.jpeg}
+\caption{Diagramme FAST}
+\label{fig:fast}
+\end{figure}
+
+\section{Analyse Pareto}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=\textwidth]{media/pareto_2023.png}
+\caption{Diagramme Pareto 2023}
+\label{fig:pareto-2023}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=\textwidth]{media/pareto_2024.png}
+\caption{Diagramme Pareto 2024}
+\label{fig:pareto-2024}
+\end{figure}
+
+Comparaison des résultats: voir Figure~\ref{fig:pareto-2023} et Figure~\ref{fig:pareto-2024}.
+
+\section{Classification des composants}
+
+\begin{figure}[H]
+\centering
+\safeincludegraphics[width=\textwidth]{media/image51.jpeg}
+\caption{Classification des composants}
+\label{fig:classification}
+\end{figure}
+
+\begin{table}[H]
+\centering
+\caption{Criticité/maintenance}
+\label{tab:criticite-maintenance}
+\begin{tabular}{|p{3cm}|p{10cm}|}
+\hline
+\textbf{Criticité} & \textbf{Type de maintenance} \\
+\hline
+\textbf{Classe AA et A} & Maintenance conditionnelle et systématique de haut niveau avec périodicité courte. \\
+\hline
+\textbf{Classe B} & Maintenance systématique allégée et maintenance conditionnelle selon coût. \\
+\hline
+\textbf{Classe C} & Travaux de base: lubrification, nettoyage, serrage. \\
+\hline
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+
+\chapter*{Conclusion}
+\addcontentsline{toc}{chapter}{Conclusion}
+Le document est maintenant prêt pour une compilation stable avec un positionnement contrôlé des figures/tableaux,
+une numérotation cohérente, et des références croisées fiables.
+
+\end{document}
